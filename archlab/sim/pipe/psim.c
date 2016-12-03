@@ -10,7 +10,6 @@
 #include <stdarg.h>
 #include <unistd.h>
 #include <string.h>
-
 #include "isa.h"
 #include "pipeline.h"
 #include "stages.h"
@@ -20,6 +19,7 @@
 #define DEFAULTNAME "Y86 Simulator: "
 
 #ifdef HAS_GUI
+#define USE_INTERP_RESULT 1
 #include <tk.h>
 #endif /* HAS_GUI */
 

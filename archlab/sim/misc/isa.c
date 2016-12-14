@@ -14,7 +14,7 @@ extern int gui_mode;
 struct {
     char *name;
     int id;
-} reg_table[REG_ERR+1] = 
+} reg_table[REG_ERR+1] =
 {
     {"%eax",   REG_EAX},
     {"%ecx",   REG_ECX},
@@ -59,7 +59,7 @@ int reg_valid(reg_id_t id)
   return id >= 0 && id < REG_NONE && reg_table[id].id == id;
 }
 
-instr_t instruction_set[] = 
+instr_t instruction_set[] =
 {
     {"nop",    HPACK(I_NOP, F_NONE), 1, NO_ARG, 0, 0, NO_ARG, 0, 0 },
     {"halt",   HPACK(I_HALT, F_NONE), 1, NO_ARG, 0, 0, NO_ARG, 0, 0 },
@@ -75,6 +75,7 @@ instr_t instruction_set[] =
     {"irmovl", HPACK(I_IRMOVL, F_NONE), 6, I_ARG, 2, 4, R_ARG, 1, 0 },
     {"rmmovl", HPACK(I_RMMOVL, F_NONE), 6, R_ARG, 1, 1, M_ARG, 1, 0 },
     {"mrmovl", HPACK(I_MRMOVL, F_NONE), 6, M_ARG, 1, 0, R_ARG, 1, 1 },
+    {"rmxchg", HPACK(I_RMXCHG, F_NONE), 6, R_ARG, 1, 1, M_ARG, 1, 0},
     {"addl",   HPACK(I_ALU, A_ADD), 2, R_ARG, 1, 1, R_ARG, 1, 0 },
     {"subl",   HPACK(I_ALU, A_SUB), 2, R_ARG, 1, 1, R_ARG, 1, 0 },
     {"andl",   HPACK(I_ALU, A_AND), 2, R_ARG, 1, 1, R_ARG, 1, 0 },
@@ -207,7 +208,7 @@ int load_mem(mem_t m, FILE *infile, int report_error)
     /* For display */
     int line_no = 0;
     char line[LINELEN];
-#endif /* HAS_GUI */   
+#endif /* HAS_GUI */
 
     int index = 0;
 
@@ -221,7 +222,7 @@ int load_mem(mem_t m, FILE *infile, int report_error)
 
 	if (buf[cpos] != '0' ||
 	    (buf[cpos+1] != 'x' && buf[cpos+1] != 'X'))
-	    continue; /* Skip this line */      
+	    continue; /* Skip this line */
 	cpos+=2;
 
 	/* Get address */
@@ -252,7 +253,7 @@ int load_mem(mem_t m, FILE *infile, int report_error)
 	index = 0;
 
 	/* Get code */
-	while (isxdigit((int)(ch=buf[cpos++])) && 
+	while (isxdigit((int)(ch=buf[cpos++])) &&
 	       isxdigit((int)(cl=buf[cpos++]))) {
 	    byte_t byte = 0;
 	    if (bytepos >= m->len) {
@@ -282,7 +283,7 @@ int load_mem(mem_t m, FILE *infile, int report_error)
 	    while (isspace((int)buf[cpos]))
 		cpos++;
 	    cpos++; /* Skip over '|' */
-	    
+
 	    index = 0;
 	    while ((c = buf[cpos++]) != '\0' && c != '\n') {
 		line[index++] = c;
@@ -291,7 +292,7 @@ int load_mem(mem_t m, FILE *infile, int report_error)
 	    if (!empty_line)
 		report_line(line_no++, addr, hexcode, line);
 	}
-#endif /* HAS_GUI */ 
+#endif /* HAS_GUI */
     }
     return byte_cnt;
 }
@@ -417,7 +418,7 @@ void set_reg_val(mem_t r, reg_id_t id, word_t val)
 #endif /* HAS_GUI */
     }
 }
-     
+
 void dump_reg(FILE *outfile, mem_t r) {
     reg_id_t id;
     for (id = 0; reg_valid(id); id++) {
@@ -435,7 +436,7 @@ void dump_reg(FILE *outfile, mem_t r) {
 struct {
     char symbol;
     int id;
-} alu_table[A_NONE+1] = 
+} alu_table[A_NONE+1] =
 {
     {'+',   A_ADD},
     {'-',   A_SUB},
@@ -497,7 +498,7 @@ cc_t compute_cc(alu_t op, word_t argA, word_t argB)
 	ovf = FALSE;
     }
     return PACK_CC(zero,sign,ovf);
-    
+
 }
 
 char *cc_names[8] = {
@@ -587,7 +588,7 @@ bool_t cond_holds(cc_t cc, cond_t bcond) {
     bool_t sf = GET_SF(cc);
     bool_t of = GET_OF(cc);
     bool_t jump = FALSE;
-    
+
     switch(bcond) {
     case C_YES:
 	jump = TRUE;
@@ -650,7 +651,7 @@ stat_t step_state(state_ptr s, FILE *error_file)
     need_regids =
 	(hi0 == I_RRMOVL || hi0 == I_ALU || hi0 == I_PUSHL ||
 	 hi0 == I_POPL || hi0 == I_IRMOVL || hi0 == I_RMMOVL ||
-	 hi0 == I_MRMOVL || hi0 == I_IADDL);
+	 hi0 == I_MRMOVL || hi0 == I_IADDL || hi0 == I_RMXCHG);
 
     if (need_regids) {
 	ok1 = get_byte_val(s->m, ftpc, &byte1);
@@ -661,7 +662,7 @@ stat_t step_state(state_ptr s, FILE *error_file)
 
     need_imm =
 	(hi0 == I_IRMOVL || hi0 == I_RMMOVL || hi0 == I_MRMOVL ||
-	 hi0 == I_JMP || hi0 == I_CALL || hi0 == I_IADDL);
+	 hi0 == I_JMP || hi0 == I_CALL || hi0 == I_IADDL || hi0 == I_RMXCHG);
 
     if (need_imm) {
 	okc = get_word_val(s->m, ftpc, &cval);
@@ -745,7 +746,7 @@ stat_t step_state(state_ptr s, FILE *error_file)
 			s->pc, hi1);
 	    return STAT_INS;
 	}
-	if (reg_valid(lo1)) 
+	if (reg_valid(lo1))
 	    cval += get_reg_val(s->r, lo1);
 	val = get_reg_val(s->r, hi1);
 	if (!set_word_val(s->m, cval, val)) {
@@ -777,13 +778,52 @@ stat_t step_state(state_ptr s, FILE *error_file)
 			s->pc, hi1);
 	    return STAT_INS;
 	}
-	if (reg_valid(lo1)) 
+	if (reg_valid(lo1))
 	    cval += get_reg_val(s->r, lo1);
 	if (!get_word_val(s->m, cval, &val))
 	    return STAT_ADR;
 	set_reg_val(s->r, hi1, val);
 	s->pc = ftpc;
 	break;
+    // --------------------------------------my change
+    case I_RMXCHG:
+	if (!ok1) {
+	    if (error_file)
+		fprintf(error_file,
+			"PC = 0x%x, Invalid instruction address\n", s->pc);
+	    return STAT_ADR;
+	}
+	if (!okc) {
+	    if (error_file)
+		fprintf(error_file,
+			"PC = 0x%x, Invalid instruction address\n", s->pc);
+	    return STAT_INS;
+	}
+	if (!reg_valid(hi1)) {
+	    if (error_file)
+		fprintf(error_file,
+			"PC = 0x%x, Invalid register ID 0x%.1x\n",
+			s->pc, hi1);
+	    return STAT_INS;
+	}
+	if (reg_valid(lo1))
+	    cval += get_reg_val(s->r, lo1);
+    word_t val_m = 0;
+    word_t val_r = 0;
+    val_r = get_reg_val(s->r, hi1);
+    if (!get_word_val(s->m, cval, &val_m))
+	    return STAT_ADR;
+    set_reg_val(s->r, hi1, val_m);
+	if (!set_word_val(s->m, cval, val_r)) {
+	    if (error_file)
+		fprintf(error_file,
+			"PC = 0x%x, Invalid data address 0x%x\n",
+			s->pc, cval);
+	    return STAT_ADR;
+	}
+	s->pc = ftpc;
+	break;
+    // ------------------------------chang end
     case I_ALU:
 	if (!ok1) {
 	    if (error_file)

@@ -1,0 +1,88 @@
+# SongZhipeng 2014013440
+	.pos 0
+main:
+	irmovl Stack, %esp
+	irmovl Stack, %ebp
+	irmovl dest, %edx
+	irmovl src, %ecx
+	irmovl $3, %eax
+	pushl %edx
+	pushl %ecx
+	pushl %eax
+	call copyBlock
+	halt
+
+copyBlock:
+	pushl %ebp
+	rrmovl %esp, %ebp
+	pushl %esi
+	pushl %ebx
+	pushl %edi
+	
+	mrmovl 8(%ebp), %ecx
+	mrmovl 12(%ebp), %esi
+	mrmovl 16(%ebp), %edi
+	xorl %eax, %eax
+L1:
+	mrmovl (%edi), %ebx
+	rmxchg %ebx, (%esi)
+	rmxchg %ebx, (%edi)
+	xorl %ebx, %eax
+	irmovl $4, %ebx
+	addl %ebx, %esi
+	addl %ebx, %edi
+	irmovl $1, %ebx
+	subl %ebx, %ecx
+	jne L1
+
+	popl %edi
+	popl %ebx
+	popl %esi
+	leave
+	ret
+
+	.align 4
+src:
+	.long 0x00a
+	.long 0x0b0
+	.long 0xc00
+dest:
+	.long 0x111
+	.long 0x222
+	.long 0x333
+
+	.align 4
+# Run time stack
+	.long 0
+	.long 0
+	.long 0
+	.long 0
+	.long 0
+	.long 0
+	.long 0
+	.long 0
+	.long 0
+	.long 0
+	.long 0
+	.long 0
+	.long 0
+	.long 0
+	.long 0
+	.long 0
+	.long 0
+	.long 0
+	.long 0
+	.long 0
+	.long 0
+	.long 0
+	.long 0
+	.long 0
+	.long 0
+	.long 0
+	.long 0
+	.long 0
+	.long 0
+	.long 0
+	.long 0
+	.long 0
+Stack:

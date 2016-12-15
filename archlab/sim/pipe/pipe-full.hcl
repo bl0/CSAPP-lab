@@ -42,7 +42,7 @@ intsig IPOPL	'I_POPL'
 intsig IIADDL	'I_IADDL'
 # Instruction code for leave instruction
 intsig ILEAVE	'I_LEAVE'
-intsig IRMXCHG 'IRMXCHG'
+intsig IRMXCHG 'I_RMXCHG'
 
 ##### Symbolic represenations of Y86 function codes            #####
 intsig FNONE    'F_NONE'        # Default function code

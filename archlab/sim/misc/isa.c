@@ -633,6 +633,10 @@ stat_t step_state(state_ptr s, FILE *error_file)
     word_t cval = 0;
     word_t okc = TRUE;
     word_t val, dval;
+    // changed
+    word_t val_m;
+    word_t val_r;
+
     bool_t need_regids;
     bool_t need_imm;
     word_t ftpc = s->pc;  /* Fall-through PC */
@@ -808,8 +812,6 @@ stat_t step_state(state_ptr s, FILE *error_file)
 	}
 	if (reg_valid(lo1))
 	    cval += get_reg_val(s->r, lo1);
-    word_t val_m = 0;
-    word_t val_r = 0;
     val_r = get_reg_val(s->r, hi1);
     if (!get_word_val(s->m, cval, &val_m))
 	    return STAT_ADR;

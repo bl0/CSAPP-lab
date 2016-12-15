@@ -1,4 +1,4 @@
-# SongZhipeng 2014013440
+# liubin 2014013466
 	.pos 0
 main:
 	irmovl Stack, %esp
@@ -9,10 +9,10 @@ main:
 	pushl %edx
 	pushl %ecx
 	pushl %eax
-	call copyBlock
+	call copy_block
 	halt
 
-copyBlock:
+copy_block:
 	pushl %ebp
 	rrmovl %esp, %ebp
 	pushl %esi
@@ -43,9 +43,9 @@ L1:
 
 	.align 4
 src:
-	.long 0x00a
-	.long 0x0b0
-	.long 0xc00
+	.long 0x001
+	.long 0x002
+	.long 0x003
 dest:
 	.long 0x111
 	.long 0x222
